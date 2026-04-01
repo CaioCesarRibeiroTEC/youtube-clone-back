@@ -9,17 +9,16 @@ config(); // Carrega as variáveis do arquivo .env
 const app = express();
 
 // Middlewares padrão
-app.use(cors({ 
-  origin: 'youtube-clone-front-six.vercel.app' 
-}));
+app.use(cors());
+
 app.use(express.json());
 
 // Rotas
 app.use('/users', userRoutes.userRoutes);
 app.use('/videos', videoRoutes.videoRoutes);
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 1000;
 
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
-});
+})
