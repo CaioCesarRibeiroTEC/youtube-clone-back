@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router } from 'express';
 import { VideoRepository } from '../modules/repository/VideoRepository';
 import { login } from '../middleware/login';

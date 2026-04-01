@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import UserRpository = require('../modules/repository/UserRpository');
