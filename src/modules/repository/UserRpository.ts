@@ -1,13 +1,13 @@
 import { prisma } from '../../prismaClient'; 
 
 class UserRepository {
-  async create(data: any) {
-
+  // Alterado para receber 3 argumentos, conforme chamado na rota
+  async create(name: string, email: string, password: string) {
     return await prisma.users.create({
       data: {
-        name: data.name,
-        email: data.email,
-        password: data.password,
+        name,
+        email,
+        password,
       },
     });
   }

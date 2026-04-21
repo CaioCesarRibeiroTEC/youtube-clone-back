@@ -9,7 +9,13 @@ const userRepository = new UserRpository.UserRepository();
 
 // Rota de cadastro
 userRoutes.post('/sign-up', async (request, response) => {
+    console.log("LOG_DEBUG: Corpo da requisição recebido:", JSON.stringify(request.body));
     const { name, email, password } = request.body;
+    console.log("LOG_DEBUG: Valores após desestruturação:", { name, email, password });
+
+    if (!name || !email || !password) {
+        return response.status(400).json({ error: "Dados incompletos enviados ao servidor." });
+    }
 
     try {
         const userExists = await userRepository.findByEmail(email);
@@ -29,6 +35,7 @@ userRoutes.post('/sign-up', async (request, response) => {
 
     } catch (error) {
         console.error(error);
+        console.log(request.body);
         return response.status(500).json({ error: 'Erro interno do servidor.' });
     }
 });
