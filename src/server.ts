@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 import userRoutes = require('./routes/user.routes');
 import videoRoutes = require('./routes/video.routes');
 
+
 config(); // Carrega as variáveis do arquivo .env
 
 const app = express();

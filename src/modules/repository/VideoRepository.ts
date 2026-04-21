@@ -1,72 +1,81 @@
-import { pool } from '../../database';
+import { prisma } from '../../prismaClient';
 
 class VideoRepository {
     // Função para salvar um novo vídeo no banco
     async create(user_id: string, title: string, description: string, url: string, thumbnail: string) {
-        const query = `
-            INSERT INTO videos (user_id, title, description, url, thumbnail)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *;
-        `;
-        const values = [user_id, title, description, url, thumbnail];
-        const { rows } = await pool.query(query, values);
-        return rows[0];
+        return await prisma.videos.create({
+            data: {
+                user_id,
+                title,
+                description,
+                url,
+                thumbnail
+            }
+        });
     }
 
     async getVideos() {
-        const query = `
-            SELECT v.*, u.name as author_name 
-            FROM videos v 
-            JOIN users u ON v.user_id = u.id 
-            ORDER BY v.created_at DESC;
-        `;
-        const { rows } = await pool.query(query);
-        return rows;
+        return await prisma.videos.findMany({
+            include: {
+                users: true // Garante que os dados do autor sejam incluídos (equivalente ao JOIN)
+            },
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
     }
 
     async getVideosByUserId(user_id: string) {
-        const query = `
-            SELECT * FROM videos 
-            WHERE user_id = $1 
-            ORDER BY created_at DESC;
-        `;
-        const { rows } = await pool.query(query, [user_id]);
-        return rows;
+        return await prisma.videos.findMany({
+            where: {
+                user_id: user_id
+            },
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
     }
 
     async searchVideos(search: string) {
-        const query = `
-            SELECT v.*, u.name as author_name 
-            FROM videos v 
-            JOIN users u ON v.user_id = u.id 
-            WHERE v.title ILIKE $1
-            ORDER BY v.created_at DESC;
-        `;
-        const { rows } = await pool.query(query, [`%${search}%`]);
-        return rows;
+        return await prisma.videos.findMany({
+            include: {
+                users: true
+            },
+            where: {
+                title: {
+                    contains: search,
+                    mode: 'insensitive' // Equivalente ao ILIKE
+                }
+            },
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
     }
 
-    // NOVA FUNÇÃO: Atualizar vídeo
+    // Função: Atualizar vídeo
     async updateVideo(video_id: string, user_id: string, title: string, description: string) {
-        const query = `
-            UPDATE videos
-            SET title = $1, description = $2
-            WHERE id = $3 AND user_id = $4
-            RETURNING *;
-        `;
-        const { rows } = await pool.query(query, [title, description, video_id, user_id]);
-        return rows[0];
+        // O Prisma requer o ID único para o update
+        return await prisma.videos.update({
+            where: {
+                id: video_id,
+                user_id: user_id // Opcional, mas mantém a segurança de dono
+            },
+            data: {
+                title,
+                description
+            }
+        });
     }
 
-    // NOVA FUNÇÃO: Deletar vídeo
+    // Função: Deletar vídeo
     async deleteVideo(video_id: string, user_id: string) {
-        const query = `
-            DELETE FROM videos
-            WHERE id = $1 AND user_id = $2
-            RETURNING *;
-        `;
-        const { rows } = await pool.query(query, [video_id, user_id]);
-        return rows[0];
+        return await prisma.videos.delete({
+            where: {
+                id: video_id,
+                user_id: user_id
+            }
+        });
     }
 }
 
